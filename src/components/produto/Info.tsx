@@ -24,7 +24,7 @@ export function Info({ spec, setSpec, qty, setQty }: Props) {
         <span className="ml-1 text-muted-foreground">374 vendido(s)</span><InfoIcon className="size-3.5 text-muted-foreground" />
       </p>
       <div>
-        <p className="mb-2 font-semibold">Especificação: <span className="font-normal text-muted-foreground">{current.label}</span></p>
+        <p className="mb-2 font-semibold">Especificação: <span className="font-normal text-muted-foreground">{current?.label}</span></p>
         <div className="flex gap-3">
           {specs.map((s) => (
             <button key={s.id} onClick={() => setSpec(s.id)}
