@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { ChevronLeft, MapPin, PackageCheck, ShieldCheck, Truck, LockKeyhole, CreditCard, Wallet, CheckCircle2, Loader2, AlertCircle } from "lucide-react";
 import { brl, specs } from "@/components/produto/data";
+import tikTokShopLogoBase64 from "../../public/tiktok-shop-logo.b64?raw";
 type Address = { name: string; phone: string; cep: string; street: string; number: string; complement: string; neighborhood: string; city: string; state: string; };
 const emptyAddress: Address = { name: "", phone: "", cep: "", street: "", number: "", complement: "", neighborhood: "", city: "", state: "" };
 export const Route = createFileRoute("/checkout")({
@@ -78,6 +79,9 @@ return (
 
         <div className="mx-auto max-w-2xl space-y-2.5 px-2.5 pt-3 sm:space-y-3 sm:px-5 sm:pt-5">
           <section className="rounded-xl bg-white px-4 py-4 shadow-[0_1px_3px_rgba(0,0,0,0.04)] sm:px-5">
+            <div className="mb-4 flex justify-center">
+              <img src={`data:image/png;base64,${tikTokShopLogoBase64.trim()}`} alt="TikTok Shop" className="h-auto w-[min(100%,230px)] object-contain" />
+            </div>
             <div className="mb-3 flex items-center justify-between">
               <span className="text-sm font-bold">Seu pedido</span>
               <span className="text-[11px] font-medium text-gray-500">1 de 1 produto</span>
