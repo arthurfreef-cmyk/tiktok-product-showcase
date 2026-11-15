@@ -16,7 +16,7 @@ import { Gallery } from "@/components/produto/Gallery";
 import { Info } from "@/components/produto/Info";
 import { Reviews } from "@/components/produto/Reviews";
 import { Description } from "@/components/produto/Description";
-import { brl, discount, specs } from "@/components/produto/data";
+import { brl, specs } from "@/components/produto/data";
 import { MoreProducts } from "@/components/produto/MoreProducts";
 
 const SHIPPING_PRICE = 25.35;
