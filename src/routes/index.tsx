@@ -250,7 +250,7 @@ function Index() {
                   <span className="block text-[13px] font-bold">Cartão de crédito</span>
                   <span className="block text-[11px] text-gray-500">Indisponível no momento</span>
                 </span>
-                <span className="text-[10px] font-semibold text-gray-400">Indisponível</span>
+                
               </button>
             </div>
             <p className="mt-3 rounded-lg bg-amber-50 px-3 py-2.5 text-[11px] leading-relaxed text-amber-800">
