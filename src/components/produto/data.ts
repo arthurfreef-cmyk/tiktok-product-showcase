@@ -1,14 +1,15 @@
+import av1 from "@/assets/produto/av1.webp.asset.json";
+import av2 from "@/assets/produto/av2.webp.asset.json";
+import av3 from "@/assets/produto/av3.webp.asset.json";
+import av4 from "@/assets/produto/av4.webp.asset.json";
+import av5 from "@/assets/produto/av5.webp.asset.json";
+import av6 from "@/assets/produto/av6.webp.asset.json";
 import um from "@/assets/produto/um.webp.asset.json";
 import dois from "@/assets/produto/dois.jpg.asset.json";
 import usb from "@/assets/produto/usb.webp.asset.json";
 import cantos from "@/assets/produto/cantos.webp.asset.json";
 import haste from "@/assets/produto/haste.webp.asset.json";
 import limpeza from "@/assets/produto/limpeza.webp.asset.json";
-import r1 from "@/assets/produto/r1.jpg.asset.json";
-import r2 from "@/assets/produto/r2.jpg.asset.json";
-import r3 from "@/assets/produto/r3.jpg.asset.json";
-import r4 from "@/assets/produto/r4.jpg.asset.json";
-import rsmall from "@/assets/produto/rsmall.jpg.asset.json";
 import p1 from "@/assets/produto/p1.jpg.asset.json";
 import p2 from "@/assets/produto/p2.jpg.asset.json";
 import p3 from "@/assets/produto/p3.jpg.asset.json";
@@ -30,17 +31,20 @@ export const ratingBars = [
   { stars: 2, count: 1 },
   { stars: 1, count: 4 },
 ];
-export const reviewPhotos = [
-  { img: r1.url, user: "b**i", stars: 5 },
-  { img: r2.url, user: "b**i", stars: 5 },
-  { img: r3.url, user: "b**i", stars: 5 },
-  { img: r4.url, user: "J**a A**s", stars: 4 },
-];
-export interface Review { id: string; user: string; initial: string; stars: number; text: string; photo?: string; date: string }
+export interface Review {
+  id: string;
+  user: string;
+  avatar?: string;
+  stars: number;
+  text: string;
+  photos: string[];
+  item: string;
+  date: string;
+}
 export const reviews: Review[] = [
-  { id: "a", user: "e**a", initial: "e", stars: 4, text: "Os acessórios caem com facilidade. Mas ainda assim, entendo que vale o valor do investimento", photo: rsmall.url, date: "2026-08-20" },
-  { id: "b", user: "J**n", initial: "J", stars: 5, text: "Muito bom, mais e um pouco lento", date: "2026-10-03" },
-  { id: "c", user: "o**e", initial: "o", stars: 5, text: "Muito boa a escova facilita bastante, recomendo muito prático o manuseio", date: "2026-11-11" },
+  { id: "a", user: "e**a", stars: 4, text: "Os acessórios caem com facilidade. Mas ainda assim, entendo que vale o valor do investimento", photos: [av1.url, av2.url], item: "1 peça", date: "2026-08-20" },
+  { id: "b", user: "J**n", stars: 5, text: "Muito bom, mais e um pouco lento", photos: [av5.url, av6.url], item: "1 peça", date: "2026-10-03" },
+  { id: "c", user: "o**e", stars: 5, text: "Muito boa a escova facilita bastante, recomendo muito prático o manuseio", photos: [av3.url, av4.url], item: "1 peça", date: "2026-11-11" },
 ];
 export const moreProducts = [
   { img: p1.url, title: "Moedor Elétrico de Café e Especiarias Inox em Aço", sold: "5.6K vendido", price: "12,69", old: "370,00", off: "" },

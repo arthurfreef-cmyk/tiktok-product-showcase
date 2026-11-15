@@ -1,15 +1,33 @@
-import { useState } from "react";
-import { ChevronDown, ChevronLeft, ChevronRight, Star } from "lucide-react";
+import { useCallback, useMemo, useState } from "react";
+import { ChevronDown, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { ratingBars, reviewPhotos, reviews } from "./data";
+import { ratingBars, reviews, type Review } from "./data";
 import { Stars } from "./Stars";
+import { ReviewItem } from "./ReviewItem";
+import { Lightbox } from "./Lightbox";
 
 const filters = ["Tudo", "Inclui imagens ou vídeos", "Compras verificadas"] as const;
+type Filter = (typeof filters)[number];
+type Sort = "Recomendado" | "Mais recentes";
+
+const applyFilter = (list: Review[], f: Filter) => (f === "Inclui imagens ou vídeos" ? list.filter((r) => r.photos.length > 0) : list);
 
 export function Reviews() {
-  const [filter, setFilter] = useState<(typeof filters)[number]>("Tudo");
-  const [page, setPage] = useState(3);
-  const max = 48;
+  const [filter, setFilter] = useState<Filter>("Tudo");
+  const [sort, setSort] = useState<Sort>("Recomendado");
+  const [viewer, setViewer] = useState<{ photos: string[]; index: number } | null>(null);
+  const max = Math.max(...ratingBars.map((b) => b.count));
+
+  const visible = useMemo(() => {
+    const list = applyFilter(reviews, filter);
+    return sort === "Mais recentes" ? [...list].sort((a, b) => b.date.localeCompare(a.date)) : list;
+  }, [filter, sort]);
+  const allPhotos = useMemo(() => reviews.flatMap((r) => r.photos.map((p) => ({ src: p, r }))), []);
+
+  const open = useCallback((photos: string[], index: number) => setViewer({ photos, index }), []);
+  const close = useCallback(() => setViewer(null), []);
+  const change = useCallback((index: number) => setViewer((v) => (v ? { ...v, index } : v)), []);
+
   return (
     <section className="space-y-4 px-4 py-4">
       <h2 className="flex items-center gap-2 text-xl font-bold">4.5 <Star className="size-5 fill-star" /> <span className="text-base font-semibold">61 avaliações globais</span></h2>
@@ -23,49 +41,41 @@ export function Reviews() {
         ))}
       </div>
       <div>
-        <div className="mb-2 flex justify-between text-sm"><span className="text-muted-foreground">Fotos de avaliações</span><button className="text-sale">Ver todas as fotos</button></div>
-        <div className="flex gap-2 overflow-x-auto">
-          {reviewPhotos.map((p, i) => (
-            <div key={i} className="relative size-24 shrink-0 overflow-hidden rounded">
-              <img src={p.img} alt={`Foto de ${p.user}`} className="size-full object-cover" />
-            </div>
+        <div className="mb-2 flex justify-between text-sm">
+          <span className="text-muted-foreground">Fotos de avaliações</span>
+          <button className="text-sale" onClick={() => open(allPhotos.map((p) => p.src), 0)}>Ver todas as fotos</button>
+        </div>
+        <div className="flex gap-2 overflow-x-auto pb-1">
+          {allPhotos.map((p, i) => (
+            <button key={p.src} onClick={() => open(allPhotos.map((x) => x.src), i)} className="relative size-24 shrink-0 overflow-hidden rounded" aria-label={`Foto de ${p.r.user}`}>
+              <img src={p.src} alt="" loading="lazy" className="size-full object-cover" />
+              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-foreground/70 px-1 pb-0.5 text-left text-[10px] text-background">
+                <span className="block">{p.r.user}</span><Stars value={p.r.stars} className="[&_svg]:size-2.5" />
+              </div>
+            </button>
           ))}
         </div>
       </div>
       <div className="space-y-2 text-sm">
         <p className="font-semibold">Classificar por</p>
-        <button className="flex items-center gap-1 rounded border px-2 py-1">Recomendado <ChevronDown className="size-3" /></button>
+        <button onClick={() => setSort(sort === "Recomendado" ? "Mais recentes" : "Recomendado")} className="flex items-center gap-1 rounded border px-2 py-1">{sort} <ChevronDown className="size-3" /></button>
         <p className="pt-1 font-semibold">Filtrar por</p>
         <div className="flex flex-wrap gap-2">
           {filters.map((f) => (
-            <button key={f} onClick={() => setFilter(f)} className={cn("rounded border px-2 py-1", f === filter ? "border-foreground font-semibold" : "bg-muted text-muted-foreground")}>{f}</button>
+            <button key={f} onClick={() => setFilter(f)} aria-pressed={f === filter} className={cn("rounded border px-2 py-1", f === filter ? "border-foreground font-semibold" : "bg-muted text-muted-foreground")}>{f}</button>
           ))}
         </div>
-        <div className="flex justify-between pt-1"><span className="text-muted-foreground">Exibindo 61 de 61 avaliações</span><button className="text-sale" onClick={() => setFilter("Tudo")}>Limpar filtros</button></div>
+        <div className="flex justify-between pt-1">
+          <span className="text-muted-foreground">Exibindo {visible.length} de {reviews.length} avaliações</span>
+          {filter !== "Tudo" && <button className="text-sale" onClick={() => setFilter("Tudo")}>Limpar filtros</button>}
+        </div>
       </div>
-      <ul className="space-y-5">
-        {reviews.filter((r) => filter !== "Inclui imagens ou vídeos" || r.photo).map((r) => (
-          <li key={r.id} className="space-y-1.5 text-sm">
-            <div className="flex items-center gap-2">
-              <span className="grid size-8 place-items-center rounded-full bg-ship font-semibold text-primary-foreground">{r.initial}</span>
-              <div><p className="font-semibold">{r.user} · Compras verificadas</p><p className="text-xs text-muted-foreground">BR</p></div>
-            </div>
-            <Stars value={r.stars} />
-            <p>{r.text}</p>
-            {r.photo && <img src={r.photo} alt="Foto da avaliação" className="size-16 rounded object-cover" />}
-            <p className="text-xs text-muted-foreground">Item: 1 peça</p>
-            <p className="text-xs text-muted-foreground">{r.date}</p>
-          </li>
-        ))}
-      </ul>
-      <nav className="flex items-center justify-center gap-3 text-sm" aria-label="Páginas">
-        <button onClick={() => setPage(Math.max(1, page - 1))} className="flex items-center"><ChevronLeft className="size-4" />Anterior</button>
-        {[1, 2, 3, 4, 5].map((n) => (
-          <button key={n} onClick={() => setPage(n)} className={cn("size-6 rounded", n === page && "bg-foreground text-background")}>{n}</button>
-        ))}
-        <span>…</span><button onClick={() => setPage(21)}>21</button>
-        <button onClick={() => setPage(Math.min(21, page + 1))} className="flex items-center">Próximo<ChevronRight className="size-4" /></button>
-      </nav>
+      {visible.length === 0 ? (
+        <p className="py-6 text-center text-sm text-muted-foreground">Nenhuma avaliação encontrada.</p>
+      ) : (
+        <ul className="space-y-5">{visible.map((r) => <ReviewItem key={r.id} review={r} onOpen={open} />)}</ul>
+      )}
+      {viewer && <Lightbox photos={viewer.photos} index={viewer.index} onChange={change} onClose={close} />}
     </section>
   );
 }
