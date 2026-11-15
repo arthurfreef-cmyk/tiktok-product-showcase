@@ -2,7 +2,7 @@ import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import {
   ChevronLeft, MoreHorizontal, Share2, ShoppingCart, MapPin, PackageCheck,
-  ShieldCheck, Truck, LockKeyhole, CreditCard, Wallet,
+  ShieldCheck, Truck, LockKeyhole, CreditCard, Wallet, CheckCircle2, Loader2, AlertCircle,
 } from "lucide-react";
 import { Gallery } from "@/components/produto/Gallery";
 import { Info } from "@/components/produto/Info";
@@ -42,6 +42,7 @@ function Index() {
   const [address, setAddress] = useState<Address>(emptyAddress);
   const [shipping, setShipping] = useState<"free" | "sedex">("free");
   const [notice, setNotice] = useState("");
+  const [cepStatus, setCepStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const current = specs.find((item) => item.id === spec) ?? specs[0];
   const subtotal = current.price * qty;
   const originalTotal = current.old * qty;
@@ -56,9 +57,52 @@ function Index() {
     { key: "city", label: "Cidade", placeholder: "Sua cidade", required: true },
     { key: "state", label: "Estado (UF)", placeholder: "UF", required: true },
   ];
-  const updateAddress = (key: keyof Address, value: string) => {
+  const updateAddress = (key: keyof Address, rawValue: string) => {
+    let value = rawValue;
+    if (key === "cep") {
+      const digits = rawValue.replace(/\\D/g, "").slice(0, 8);
+      value = digits.length > 5 ? `${digits.slice(0, 5)}-${digits.slice(5)}` : digits;
+      setCepStatus("idle");
+    }
+    if (key === "phone") {
+      const digits = rawValue.replace(/\\D/g, "").slice(0, 11);
+      value = digits.length > 10
+        ? digits.replace(/^(\\d{2})(\\d{5})(\\d{4})$/, "($1) $2-$3")
+        : digits.length > 6
+          ? digits.replace(/^(\\d{2})(\\d{4})(\\d{0,4})$/, "($1) $2-$3")
+          : digits.length > 2
+            ? digits.replace(/^(\\d{2})(\\d+)/, "($1) $2")
+            : digits;
+    }
+    if (key === "state") value = rawValue.toUpperCase().replace(/[^A-Z]/g, "").slice(0, 2);
     setAddress((previous) => ({ ...previous, [key]: value }));
     setNotice("");
+  };
+
+  const lookupCep = async () => {
+    const cep = address.cep.replace(/\\D/g, "");
+    if (cep.length !== 8) {
+      setCepStatus("error");
+      return;
+    }
+    setCepStatus("loading");
+    try {
+      const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+      if (!response.ok) throw new Error("Falha ao consultar CEP");
+      const data = await response.json();
+      if (data.erro) throw new Error("CEP não encontrado");
+      setAddress((previous) => ({
+        ...previous,
+        street: data.logradouro || previous.street,
+        neighborhood: data.bairro || previous.neighborhood,
+        city: data.localidade || previous.city,
+        state: data.uf || previous.state,
+      }));
+      setCepStatus("success");
+      setNotice("");
+    } catch {
+      setCepStatus("error");
+    }
   };
   const addressComplete = address.name.trim() && address.phone.trim() && address.cep.trim() &&
     address.street.trim() && address.number.trim() && address.neighborhood.trim() &&
@@ -83,8 +127,20 @@ function Index() {
         </header>
 
         <div className="mx-auto w-full max-w-3xl space-y-4 px-3 py-4 sm:space-y-5 sm:px-6 sm:py-7">
+          <div className="mb-1 rounded-xl bg-white px-4 py-4 shadow-sm sm:px-5">
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-xs font-semibold text-[#15966b]">● Pedido em preenchimento</span>
+              <span className="text-[11px] text-gray-500">Etapa 1 de 4</span>
+            </div>
+            <div className="mt-3 grid grid-cols-4 gap-1.5" aria-label="Etapas do checkout">
+              <span className="h-1.5 rounded-full bg-[#fe2c55]" />
+              <span className="h-1.5 rounded-full bg-gray-200" />
+              <span className="h-1.5 rounded-full bg-gray-200" />
+              <span className="h-1.5 rounded-full bg-gray-200" />
+            </div>
+          </div>
           <div className="space-y-4 sm:space-y-5">
-            <section className="rounded-xl bg-white p-4 shadow-sm sm:p-5">
+            <section className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm sm:p-5">
               <div className="mb-4 flex items-center gap-2">
                 <MapPin className="size-5 text-[#fe2c55]" />
                 <h1 className="text-base font-bold sm:text-lg">Endereço de entrega</h1>
@@ -97,6 +153,7 @@ function Index() {
                       type={field.type ?? "text"}
                       value={address[field.key]}
                       onChange={(event) => updateAddress(field.key, event.target.value)}
+                      onBlur={field.key === "cep" ? () => void lookupCep() : undefined}
                       placeholder={field.placeholder}
                       autoComplete={field.key === "name" ? "name" : field.key === "phone" ? "tel" : field.key === "cep" ? "postal-code" : field.key === "street" ? "street-address" : "off"}
                       required={field.required}
@@ -106,10 +163,15 @@ function Index() {
                   </label>
                 ))}
               </div>
-              <p className="mt-3 text-[11px] text-gray-500">* Campos obrigatórios para a entrega.</p>
+              <div className="mt-3 flex min-h-5 items-center gap-2 text-[11px]" aria-live="polite">
+                {cepStatus === "loading" && <><Loader2 className="size-3.5 animate-spin text-gray-500" /><span className="text-gray-500">Consultando CEP...</span></>}
+                {cepStatus === "success" && <><CheckCircle2 className="size-3.5 text-[#15966b]" /><span className="text-[#15966b]">Endereço localizado. Confira os dados antes de continuar.</span></>}
+                {cepStatus === "error" && <><AlertCircle className="size-3.5 text-amber-600" /><span className="text-amber-700">Não foi possível localizar o CEP. Você pode preencher o endereço manualmente.</span></>}
+                {cepStatus === "idle" && <span className="text-gray-500">* Campos obrigatórios. Digite o CEP para preencher o endereço automaticamente.</span>}
+              </div>
             </section>
 
-            <section className="rounded-xl bg-white p-4 shadow-sm sm:p-5">
+            <section className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm sm:p-5">
               <div className="mb-4 flex items-center gap-2">
                 <Truck className="size-5 text-[#fe2c55]" />
                 <h2 className="text-base font-bold sm:text-lg">Forma de envio</h2>
@@ -173,12 +235,12 @@ function Index() {
                 <div className="flex items-center justify-between border-t pt-4 text-base font-bold"><span>Total {shipping === "sedex" ? "parcial" : ""}</span><span className="tabular-nums">{shipping === "free" ? `R$ ${brl(subtotal)}` : `R$ ${brl(subtotal)} + SEDEX`}</span></div>
               </div>
               {notice && <p role="alert" className="mt-4 rounded-lg bg-amber-50 p-3 text-xs leading-relaxed text-amber-800">{notice}</p>}
-              <button type="button" onClick={() => setNotice(!addressComplete ? "Preencha todos os campos obrigatórios do endereço para continuar." : shipping === "sedex" ? "O frete SEDEX depende de cotação oficial pelos Correios. Essa cotação ainda não está integrada." : "Endereço preenchido. PIX e cartão ainda estão indisponíveis, portanto o pedido não pode ser enviado ou cobrado neste momento.")} className="mt-5 min-h-12 w-full rounded-full bg-[#fe2c55] px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-[#e9274d] active:scale-[0.99]">
-                Continuar
+              <button type="button" onClick={() => setNotice(!addressComplete ? "Preencha todos os campos obrigatórios do endereço para continuar." : shipping === "sedex" ? "Seu endereço está preenchido, mas o SEDEX só poderá ser confirmado após a integração da cotação oficial dos Correios. Nenhum valor será cobrado ou estimado." : "Seu endereço está preenchido. As opções PIX, crédito e débito ainda estão indisponíveis; por isso, o pedido não será enviado nem haverá cobrança.")} className="mt-5 flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-[#fe2c55] px-5 py-3 text-sm font-bold text-white shadow-sm transition-colors hover:bg-[#e9274d] active:scale-[0.99]">
+                Revisar pedido <ChevronLeft className="size-4 rotate-180" />
               </button>
               <p className="mt-3 text-center text-[11px] leading-relaxed text-gray-500">Ao continuar, você concorda com os termos de uso e a política de privacidade.</p>
             </section>
-            <section className="rounded-xl bg-white p-4 shadow-sm sm:p-5">
+            <section className="rounded-xl border border-[#15966b]/15 bg-white p-4 shadow-sm sm:p-5">
               <div className="flex items-center gap-2">
                 <ShieldCheck className="size-5 text-[#15966b]" />
                 <h2 className="text-sm font-bold sm:text-base">Compra protegida</h2>
