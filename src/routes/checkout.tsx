@@ -79,8 +79,8 @@ return (
 
         <div className="mx-auto max-w-2xl space-y-2.5 px-2.5 pt-3 sm:space-y-3 sm:px-5 sm:pt-5">
           <section className="rounded-xl bg-white px-4 py-4 shadow-[0_1px_3px_rgba(0,0,0,0.04)] sm:px-5">
-            <div className="mb-4 flex justify-center">
-              <img src={`data:image/png;base64,${tikTokShopLogoBase64.trim()}`} alt="TikTok Shop" className="h-auto w-[min(100%,230px)] object-contain" />
+            <div className="mb-2 flex justify-center">
+              <img src={`data:image/png;base64,${tikTokShopLogoBase64.trim()}`} alt="TikTok Shop" className="h-auto w-[min(100%,132px)] object-contain" />
             </div>
             <div className="mb-3 flex items-center justify-between">
               <span className="text-sm font-bold">Seu pedido</span>
