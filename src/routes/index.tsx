@@ -84,25 +84,6 @@ function Index() {
 
         <div className="mx-auto w-full max-w-3xl space-y-4 px-3 py-4 sm:space-y-5 sm:px-6 sm:py-7">
           <div className="space-y-4 sm:space-y-5">
-            <section className="rounded-xl bg-white p-4 shadow-sm sm:sticky sm:top-20 sm:p-5">
-              <div className="mb-4 flex items-center gap-2"><PackageCheck className="size-5 text-[#fe2c55]" /><h2 className="text-base font-bold sm:text-lg">Resumo do pedido</h2></div>
-              <div className="mb-4 flex min-w-0 gap-3">
-                <img src={current.img} alt="Escova Elétrica 9 em 1" className="size-16 shrink-0 rounded-lg bg-gray-100 object-cover" />
-                <div className="min-w-0 flex-1"><p className="line-clamp-2 text-sm font-semibold">Escova Elétrica 9 em 1 – Limpeza Fácil e Rápida</p><p className="mt-1 text-xs text-gray-500">{current.label} · Qtd: {qty}</p><p className="mt-1 text-sm font-bold">R$ {brl(subtotal)}</p></div>
-              </div>
-              <div className="space-y-3 border-t pt-4 text-sm">
-                <div className="flex items-start justify-between gap-3"><span className="text-gray-600">Subtotal do produto</span><span className="shrink-0 font-medium tabular-nums">R$ {brl(subtotal)}</span></div>
-                <div className="flex items-start justify-between gap-3"><span className="text-gray-600">Preço original</span><span className="shrink-0 text-gray-500 line-through tabular-nums">R$ {brl(originalTotal)}</span></div>
-                <div className="flex items-start justify-between gap-3"><span className="text-gray-600">Desconto no produto</span><span className="shrink-0 font-medium text-[#fe2c55] tabular-nums">- R$ {brl(originalTotal - subtotal)}</span></div>
-                <div className="flex items-center justify-between gap-3 border-t pt-3"><span className="text-gray-600">Frete {shipping === "free" ? "econômico" : "SEDEX"}</span><span className="font-medium">{shipping === "free" ? "Grátis" : "A calcular"}</span></div>
-                <div className="flex items-center justify-between border-t pt-4 text-base font-bold"><span>Total {shipping === "sedex" ? "parcial" : ""}</span><span className="tabular-nums">{shipping === "free" ? `R$ ${brl(subtotal)}` : `R$ ${brl(subtotal)} + SEDEX`}</span></div>
-              </div>
-              {notice && <p role="alert" className="mt-4 rounded-lg bg-amber-50 p-3 text-xs leading-relaxed text-amber-800">{notice}</p>}
-              <button type="button" onClick={() => setNotice(!addressComplete ? "Preencha todos os campos obrigatórios do endereço para continuar." : shipping === "sedex" ? "O frete SEDEX depende de cotação oficial pelos Correios. Essa cotação ainda não está integrada." : "Endereço preenchido. PIX e cartão ainda estão indisponíveis, portanto o pedido não pode ser enviado ou cobrado neste momento.")} className="mt-5 min-h-12 w-full rounded-full bg-[#fe2c55] px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-[#e9274d] active:scale-[0.99]">
-                Continuar
-              </button>
-              <p className="mt-3 text-center text-[11px] leading-relaxed text-gray-500">Ao continuar, você concorda com os termos de uso e a política de privacidade.</p>
-            </section>
             <section className="rounded-xl bg-white p-4 shadow-sm sm:p-5">
               <div className="mb-4 flex items-center gap-2">
                 <MapPin className="size-5 text-[#fe2c55]" />
@@ -178,6 +159,25 @@ function Index() {
               <p className="mt-3 text-xs leading-relaxed text-gray-500">As opções de pagamento estão sendo configuradas e ainda não podem ser selecionadas.</p>
             </section>
 
+            <section className="rounded-xl bg-white p-4 shadow-sm sm:p-5">
+              <div className="mb-4 flex items-center gap-2"><PackageCheck className="size-5 text-[#fe2c55]" /><h2 className="text-base font-bold sm:text-lg">Resumo do pedido</h2></div>
+              <div className="mb-4 flex min-w-0 gap-3">
+                <img src={current.img} alt="Escova Elétrica 9 em 1" className="size-16 shrink-0 rounded-lg bg-gray-100 object-cover" />
+                <div className="min-w-0 flex-1"><p className="line-clamp-2 text-sm font-semibold">Escova Elétrica 9 em 1 – Limpeza Fácil e Rápida</p><p className="mt-1 text-xs text-gray-500">{current.label} · Qtd: {qty}</p><p className="mt-1 text-sm font-bold">R$ {brl(subtotal)}</p></div>
+              </div>
+              <div className="space-y-3 border-t pt-4 text-sm">
+                <div className="flex items-start justify-between gap-3"><span className="text-gray-600">Subtotal do produto</span><span className="shrink-0 font-medium tabular-nums">R$ {brl(subtotal)}</span></div>
+                <div className="flex items-start justify-between gap-3"><span className="text-gray-600">Preço original</span><span className="shrink-0 text-gray-500 line-through tabular-nums">R$ {brl(originalTotal)}</span></div>
+                <div className="flex items-start justify-between gap-3"><span className="text-gray-600">Desconto no produto</span><span className="shrink-0 font-medium text-[#fe2c55] tabular-nums">- R$ {brl(originalTotal - subtotal)}</span></div>
+                <div className="flex items-center justify-between gap-3 border-t pt-3"><span className="text-gray-600">Frete {shipping === "free" ? "econômico" : "SEDEX"}</span><span className="font-medium">{shipping === "free" ? "Grátis" : "A calcular"}</span></div>
+                <div className="flex items-center justify-between border-t pt-4 text-base font-bold"><span>Total {shipping === "sedex" ? "parcial" : ""}</span><span className="tabular-nums">{shipping === "free" ? `R$ ${brl(subtotal)}` : `R$ ${brl(subtotal)} + SEDEX`}</span></div>
+              </div>
+              {notice && <p role="alert" className="mt-4 rounded-lg bg-amber-50 p-3 text-xs leading-relaxed text-amber-800">{notice}</p>}
+              <button type="button" onClick={() => setNotice(!addressComplete ? "Preencha todos os campos obrigatórios do endereço para continuar." : shipping === "sedex" ? "O frete SEDEX depende de cotação oficial pelos Correios. Essa cotação ainda não está integrada." : "Endereço preenchido. PIX e cartão ainda estão indisponíveis, portanto o pedido não pode ser enviado ou cobrado neste momento.")} className="mt-5 min-h-12 w-full rounded-full bg-[#fe2c55] px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-[#e9274d] active:scale-[0.99]">
+                Continuar
+              </button>
+              <p className="mt-3 text-center text-[11px] leading-relaxed text-gray-500">Ao continuar, você concorda com os termos de uso e a política de privacidade.</p>
+            </section>
             <section className="rounded-xl bg-white p-4 shadow-sm sm:p-5">
               <div className="flex items-center gap-2">
                 <ShieldCheck className="size-5 text-[#15966b]" />
