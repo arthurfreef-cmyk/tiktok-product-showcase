@@ -2,7 +2,7 @@ import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import {
   ChevronLeft, MoreHorizontal, Share2, ShoppingCart, MapPin, PackageCheck,
-  ShieldCheck, Truck, LockKeyhole, CreditCard, Wallet, CheckCircle2,
+  ShieldCheck, Truck, LockKeyhole, CreditCard, Wallet,
 } from "lucide-react";
 import { Gallery } from "@/components/produto/Gallery";
 import { Info } from "@/components/produto/Info";
