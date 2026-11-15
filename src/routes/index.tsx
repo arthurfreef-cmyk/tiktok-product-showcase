@@ -77,7 +77,7 @@ function Index() {
   };
 
   useEffect(() => {
-    const cep = address.cep.replace(/\\D/g, "");
+    const cep = address.cep.replace(/\D/g, "");
     if (cep.length !== 8) {
       setCepStatus("idle");
       return;
