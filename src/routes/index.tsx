@@ -5,6 +5,7 @@ import { Gallery } from "@/components/produto/Gallery";
 import { Info } from "@/components/produto/Info";
 import { Reviews } from "@/components/produto/Reviews";
 import { Description } from "@/components/produto/Description";
+import { specs } from "@/components/produto/data";
 import { MoreProducts } from "@/components/produto/MoreProducts";
 
 export const Route = createFileRoute("/")({
@@ -31,7 +32,7 @@ function Index() {
         <div className="flex gap-4"><Share2 className="size-5" /><ShoppingCart className="size-5" /><MoreHorizontal className="size-5" /></div>
       </header>
       <nav className="truncate px-4 pb-2 text-xs text-muted-foreground">TikTok Shop › Eletrodomésticos › Eletrodomésticos › Esfregões elétricos › <span className="text-foreground">Escova Elétrica 9 em 1</span></nav>
-      <Gallery />
+      <Gallery cover={(specs.find((s) => s.id === spec) ?? specs[0])?.img ?? ""} />
       <Info spec={spec} setSpec={setSpec} qty={qty} setQty={setQty} />
       <div className="h-2 bg-muted" />
       <Reviews />

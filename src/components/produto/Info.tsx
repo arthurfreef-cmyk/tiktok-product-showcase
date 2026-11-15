@@ -1,17 +1,18 @@
 import { Info as InfoIcon, Minus, Plus, Star, Truck } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { specs } from "./data";
+import { brl, discount, specs } from "./data";
 
 interface Props { spec: string; setSpec: (s: string) => void; qty: number; setQty: (n: number) => void }
 
 export function Info({ spec, setSpec, qty, setQty }: Props) {
   const current = specs.find((s) => s.id === spec) ?? specs[0];
+  const [int, dec] = brl(current?.price ?? 0).split(",");
   return (
     <section className="space-y-3 px-4 py-3">
       <div className="flex items-baseline gap-1.5">
-        <span className="text-2xl text-sale">-59%</span>
-        <span className="text-sm font-bold">R$</span><span className="text-3xl font-bold">48</span><span className="text-sm font-bold">,90</span>
-        <span className="text-sm text-muted-foreground line-through">R$120,00</span>
+        <span className="text-2xl text-sale">-{current ? discount(current) : 0}%</span>
+        <span className="text-sm font-bold">R$</span><span className="text-3xl font-bold">{int}</span><span className="text-sm font-bold">,{dec}</span>
+        <span className="text-sm text-muted-foreground line-through">R${brl(current?.old ?? 0)}</span>
       </div>
       <p className="flex items-center gap-1.5 font-semibold text-ship"><Truck className="size-4" /> Frete grátis</p>
       <h1 className="text-base font-semibold leading-snug">
@@ -29,7 +30,8 @@ export function Info({ spec, setSpec, qty, setQty }: Props) {
           {specs.map((s) => (
             <button key={s.id} onClick={() => setSpec(s.id)}
               className={cn("w-[72px] rounded border-2 p-1 text-xs", s.id === spec ? "border-foreground" : "border-border")}>
-              <img src={s.img} alt={s.label} className="w-full object-contain" />
+              <img src={s.img} alt={s.label} className="aspect-square w-full object-cover" />
+              <span className="mt-1 block">{s.label}</span>
             </button>
           ))}
         </div>

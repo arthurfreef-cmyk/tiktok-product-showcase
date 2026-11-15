@@ -1,10 +1,9 @@
-import main from "@/assets/produto/main.jpg.asset.json";
+import um from "@/assets/produto/um.webp.asset.json";
+import dois from "@/assets/produto/dois.jpg.asset.json";
 import usb from "@/assets/produto/usb.webp.asset.json";
 import cantos from "@/assets/produto/cantos.webp.asset.json";
 import haste from "@/assets/produto/haste.webp.asset.json";
 import limpeza from "@/assets/produto/limpeza.webp.asset.json";
-import spec1 from "@/assets/produto/spec1.jpg.asset.json";
-import spec2 from "@/assets/produto/spec2.jpg.asset.json";
 import r1 from "@/assets/produto/r1.jpg.asset.json";
 import r2 from "@/assets/produto/r2.jpg.asset.json";
 import r3 from "@/assets/produto/r3.jpg.asset.json";
@@ -16,11 +15,14 @@ import p3 from "@/assets/produto/p3.jpg.asset.json";
 import p4 from "@/assets/produto/p4.jpg.asset.json";
 import p5 from "@/assets/produto/p5.jpg.asset.json";
 
-export const gallery: string[] = [main.url, usb.url, cantos.url, haste.url, limpeza.url];
-export const specs = [
-  { id: "1", label: "1 peça", img: spec1.url },
-  { id: "2", label: "2 peça", img: spec2.url },
+export const gallery: string[] = [usb.url, cantos.url, haste.url, limpeza.url];
+export interface Spec { id: string; label: string; img: string; price: number; old: number }
+export const specs: Spec[] = [
+  { id: "1", label: "1 peça", img: um.url, price: 48.9, old: 120 },
+  { id: "2", label: "2 peça", img: dois.url, price: 137.9, old: 257 },
 ];
+export const brl = (n: number) => n.toFixed(2).replace(".", ",");
+export const discount = (s: Spec) => Math.round((1 - s.price / s.old) * 100);
 export const ratingBars = [
   { stars: 5, count: 48 },
   { stars: 4, count: 7 },
