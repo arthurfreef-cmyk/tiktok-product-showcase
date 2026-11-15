@@ -154,7 +154,7 @@ return (
               <div className="space-y-2">
                 <label className={`flex cursor-pointer items-center gap-3 rounded-lg border p-3.5 transition ${shipping === "sedex" ? "border-[#fe2c55] bg-[#fff8f9]" : "border-gray-200"}`}>
                   <input type="radio" name="shipping" checked={shipping === "sedex"} onChange={() => setShipping("sedex")} className="size-4 accent-[#fe2c55]" />
-                  <span className="grid h-9 min-w-[76px] place-items-center rounded-md bg-[#fff0f2] px-2 text-[12px] font-black italic tracking-tight text-[#d71920]">SEDEX</span>
+                  <span className="flex h-9 w-[82px] shrink-0 items-center justify-center overflow-hidden rounded-md bg-[#003f7d] px-1.5"><img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Sedex_logo.png" alt="SEDEX Correios" className="h-auto w-full object-contain" /></span>
                   <span className="min-w-0 flex-1">
                     <span className="block text-[13px] font-bold">Frete expresso SEDEX</span>
                     <span className="mt-0.5 block text-[11px] text-gray-500">Entrega expressa • valor a confirmar</span>
@@ -162,7 +162,7 @@ return (
                 </label>
                 <label className={`flex cursor-pointer items-center gap-3 rounded-lg border p-3.5 transition ${shipping === "jadlog" ? "border-[#15966b] bg-[#15966b]/[0.045]" : "border-gray-200"}`}>
                   <input type="radio" name="shipping" checked={shipping === "jadlog"} onChange={() => setShipping("jadlog")} className="size-4 accent-[#15966b]" />
-                  <span className="grid h-9 min-w-[76px] place-items-center rounded-md bg-[#fff3e8] px-2 text-[12px] font-black italic tracking-tight text-[#e87522]">JADLOG</span>
+                  <span className="flex h-9 w-[82px] shrink-0 items-center justify-center overflow-hidden rounded-md bg-white px-1.5"><img src="https://images.seeklogo.com/logo-png/50/1/jadlog-logo-png_seeklogo-502850.png" alt="Jadlog" className="h-auto w-full object-contain" /></span>
                   <span className="min-w-0 flex-1">
                     <span className="block text-[13px] font-bold">Frete grátis Jadlog</span>
                     <span className="mt-0.5 block text-[11px] text-gray-500">Entrega padrão sem custo</span>
