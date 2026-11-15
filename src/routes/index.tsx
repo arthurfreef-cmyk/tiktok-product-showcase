@@ -41,6 +41,7 @@ function Index() {
   const [showCheckout, setShowCheckout] = useState(false);
   const [address, setAddress] = useState<Address>(emptyAddress);
   const [shipping, setShipping] = useState<"free" | "sedex">("free");
+  const [paymentMethod, setPaymentMethod] = useState<"pix" | "card">("pix");
   const [notice, setNotice] = useState("");
   const [cepStatus, setCepStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const current = specs.find((item) => item.id === spec) ?? specs[0];
@@ -105,148 +106,173 @@ function Index() {
     }
   };
   const addressComplete = address.name.trim() && address.phone.trim() && address.cep.trim() &&
-    address.street.trim() && address.number.trim() && address.neighborhood.trim() &&
-    address.city.trim() && address.state.trim();
-
-  if (showCheckout) {
+    address.street.trim() && address.number.trim() && addr  if (showCheckout) {
     return (
-      <main className="min-h-screen bg-[#f5f5f5] text-[#161823]">
-        <header className="sticky top-0 z-30 border-b bg-white">
-          <div className="mx-auto flex h-14 max-w-5xl items-center gap-3 px-4 sm:h-16 sm:px-6">
+      <main className="min-h-screen bg-[#f5f5f6] pb-32 text-[#161823]">
+        <header className="sticky top-0 z-30 border-b border-gray-100 bg-white">
+          <div className="mx-auto flex h-14 max-w-2xl items-center gap-3 px-3 sm:h-16 sm:px-5">
             <button onClick={() => setShowCheckout(false)} aria-label="Voltar para o produto" className="grid size-9 shrink-0 place-items-center rounded-full hover:bg-gray-100">
               <ChevronLeft className="size-6" />
             </button>
-            <div className="min-w-0">
-              <p className="text-sm font-bold sm:text-base">Finalizar pedido</p>
-              <p className="text-[11px] text-gray-500 sm:text-xs">Preencha seus dados para entrega</p>
+            <div className="min-w-0 flex-1">
+              <p className="text-[15px] font-bold">Finalizar compra</p>
+              <p className="text-[11px] text-gray-500">Revise os dados do seu pedido</p>
             </div>
-            <div className="ml-auto flex items-center gap-1.5 text-xs font-medium text-gray-500">
-              <LockKeyhole className="size-4" /> Ambiente seguro
+            <div className="flex items-center gap-1.5 rounded-full bg-[#f6f6f6] px-3 py-1.5 text-[10px] font-semibold text-gray-600">
+              <LockKeyhole className="size-3.5" /> Checkout
             </div>
           </div>
         </header>
 
-        <div className="mx-auto w-full max-w-3xl space-y-4 px-3 py-4 sm:space-y-5 sm:px-6 sm:py-7">
-          <div className="mb-1 rounded-xl bg-white px-4 py-4 shadow-sm sm:px-5">
-            <div className="flex items-center justify-between gap-2">
-              <span className="text-xs font-semibold text-[#15966b]">● Pedido em preenchimento</span>
-              <span className="text-[11px] text-gray-500">Etapa 1 de 4</span>
+        <div className="mx-auto max-w-2xl space-y-2.5 px-2.5 pt-3 sm:space-y-3 sm:px-5 sm:pt-5">
+          <section className="rounded-xl bg-white px-4 py-4 shadow-[0_1px_3px_rgba(0,0,0,0.04)] sm:px-5">
+            <div className="mb-3 flex items-center justify-between">
+              <span className="text-sm font-bold">Seu pedido</span>
+              <span className="text-[11px] font-medium text-gray-500">1 de 1 produto</span>
             </div>
-            <div className="mt-3 grid grid-cols-4 gap-1.5" aria-label="Etapas do checkout">
-              <span className="h-1.5 rounded-full bg-[#fe2c55]" />
-              <span className="h-1.5 rounded-full bg-gray-200" />
-              <span className="h-1.5 rounded-full bg-gray-200" />
-              <span className="h-1.5 rounded-full bg-gray-200" />
-            </div>
-          </div>
-          <div className="space-y-4 sm:space-y-5">
-            <section className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm sm:p-5">
-              <div className="mb-4 flex items-center gap-2">
-                <MapPin className="size-5 text-[#fe2c55]" />
-                <h1 className="text-base font-bold sm:text-lg">Endereço de entrega</h1>
+            <div className="flex gap-3">
+              <div className="size-[88px] shrink-0 overflow-hidden rounded-lg bg-gray-100">
+                <img src={current.img} alt="Escova Elétrica 9 em 1" className="h-full w-full object-cover" />
               </div>
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                {addressFields.map((field) => (
-                  <label key={field.key} className={field.wide ? "sm:col-span-2" : ""}>
-                    <span className="mb-1.5 block text-xs font-semibold text-gray-700">{field.label}{field.required && <span className="text-[#fe2c55]"> *</span>}</span>
-                    <input
-                      type={field.type ?? "text"}
-                      value={address[field.key]}
-                      onChange={(event) => updateAddress(field.key, event.target.value)}
-                      onBlur={field.key === "cep" ? () => void lookupCep() : undefined}
-                      placeholder={field.placeholder}
-                      autoComplete={field.key === "name" ? "name" : field.key === "phone" ? "tel" : field.key === "cep" ? "postal-code" : field.key === "street" ? "street-address" : "off"}
-                      required={field.required}
-                      maxLength={field.key === "state" ? 2 : field.key === "cep" ? 9 : undefined}
-                      className="min-h-11 w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm outline-none transition focus:border-[#fe2c55] focus:ring-2 focus:ring-[#fe2c55]/10"
-                    />
-                  </label>
-                ))}
-              </div>
-              <div className="mt-3 flex min-h-5 items-center gap-2 text-[11px]" aria-live="polite">
-                {cepStatus === "loading" && <><Loader2 className="size-3.5 animate-spin text-gray-500" /><span className="text-gray-500">Consultando CEP...</span></>}
-                {cepStatus === "success" && <><CheckCircle2 className="size-3.5 text-[#15966b]" /><span className="text-[#15966b]">Endereço localizado. Confira os dados antes de continuar.</span></>}
-                {cepStatus === "error" && <><AlertCircle className="size-3.5 text-amber-600" /><span className="text-amber-700">Não foi possível localizar o CEP. Você pode preencher o endereço manualmente.</span></>}
-                {cepStatus === "idle" && <span className="text-gray-500">* Campos obrigatórios. Digite o CEP para preencher o endereço automaticamente.</span>}
-              </div>
-            </section>
-
-            <section className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm sm:p-5">
-              <div className="mb-4 flex items-center gap-2">
-                <Truck className="size-5 text-[#fe2c55]" />
-                <h2 className="text-base font-bold sm:text-lg">Forma de envio</h2>
-              </div>
-              <div className="space-y-3">
-                <label className={`flex cursor-pointer items-start gap-3 rounded-lg border p-3 sm:p-4 ${shipping === "free" ? "border-[#15966b] bg-[#15966b]/5" : "border-gray-200"}`}>
-                  <input type="radio" name="shipping" checked={shipping === "free"} onChange={() => setShipping("free")} className="mt-1 size-4 accent-[#15966b]" />
-                  <span className="min-w-0 flex-1">
-                    <span className="flex flex-wrap items-center gap-2 text-sm font-bold">Frete grátis <span className="rounded bg-[#15966b]/10 px-2 py-0.5 text-[10px] font-bold text-[#12835e]">GRÁTIS</span></span>
-                    <span className="mt-1 block text-xs leading-relaxed text-gray-500">Entrega econômica por transportadora parceira. Prazo maior que o envio expresso.</span>
-                  </span>
-                  <span className="shrink-0 text-sm font-bold text-[#15966b]">R$ 0,00</span>
-                </label>
-
-                <label className={`flex cursor-pointer items-start gap-3 rounded-lg border p-3 sm:p-4 ${shipping === "sedex" ? "border-[#fe2c55] bg-[#fe2c55]/5" : "border-gray-200"}`}>
-                  <input type="radio" name="shipping" checked={shipping === "sedex"} onChange={() => setShipping("sedex")} className="mt-1 size-4 accent-[#fe2c55]" />
-                  <span className="min-w-0 flex-1">
-                    <span className="flex flex-wrap items-center gap-2">
-                      <span className="inline-flex items-center rounded bg-[#f7d21e] px-2 py-1 text-sm font-black italic tracking-tight text-[#173b75]">SEDEX</span>
-                      <span className="text-sm font-bold">Frete expresso</span>
-                    </span>
-                    <span className="mt-1 block text-xs leading-relaxed text-gray-500">Envio expresso pelos Correios. Valor e prazo precisam ser confirmados pelo CEP.</span>
-                  </span>
-                  <span className="shrink-0 text-right text-xs font-semibold text-gray-600">A calcular</span>
-                </label>
-              </div>
-              {shipping === "sedex" && <p className="mt-3 rounded-lg bg-amber-50 p-3 text-xs leading-relaxed text-amber-800">O valor do SEDEX ainda não está conectado a uma cotação dos Correios. Não será acrescentada uma tarifa estimada ao pedido.</p>}
-            </section>
-
-            <section className="rounded-xl bg-white p-4 shadow-sm sm:p-5">
-              <div className="mb-4 flex items-center gap-2">
-                <Wallet className="size-5 text-[#fe2c55]" />
-                <h2 className="text-base font-bold sm:text-lg">Forma de pagamento</h2>
-              </div>
-              <div className="space-y-3">
-                <div className="flex items-center gap-3 rounded-lg border border-gray-200 p-3 opacity-60">
-                  <span className="grid size-10 place-items-center rounded-lg bg-gray-100"><span className="text-lg font-black text-[#15966b]">PIX</span></span>
-                  <span className="min-w-0 flex-1"><span className="block text-sm font-semibold">PIX</span><span className="block text-xs text-gray-500">Pagamento instantâneo</span></span>
-                  <span className="rounded-full bg-gray-100 px-2.5 py-1 text-[10px] font-bold text-gray-500">Indisponível</span>
-                </div>
-                <div className="flex items-center gap-3 rounded-lg border border-gray-200 p-3 opacity-60">
-                  <span className="grid size-10 place-items-center rounded-lg bg-gray-100"><CreditCard className="size-5 text-gray-600" /></span>
-                  <span className="min-w-0 flex-1"><span className="block text-sm font-semibold">Cartão de crédito ou débito</span><span className="block text-xs text-gray-500">Visa, Mastercard e outras bandeiras</span></span>
-                  <span className="rounded-full bg-gray-100 px-2.5 py-1 text-[10px] font-bold text-gray-500">Indisponível</span>
+              <div className="min-w-0 flex-1">
+                <p className="line-clamp-2 text-[13px] font-semibold leading-snug">Escova Elétrica 9 em 1 – Limpeza Fácil e Rápida</p>
+                <p className="mt-1 text-[11px] text-gray-500">Variação: {current.label}</p>
+                <p className="mt-2 text-sm font-bold">R$ {brl(current.price)}</p>
+                <div className="mt-2 inline-flex items-center gap-2 rounded bg-[#f7f7f7] px-2 py-1">
+                  <button aria-label="Diminuir quantidade" onClick={() => setQty(Math.max(1, qty - 1))} className="grid size-5 place-items-center text-gray-600">−</button>
+                  <span className="min-w-4 text-center text-xs font-semibold tabular-nums">{qty}</span>
+                  <button aria-label="Aumentar quantidade" onClick={() => setQty(qty + 1)} className="grid size-5 place-items-center text-gray-600">+</button>
                 </div>
               </div>
-              <p className="mt-3 text-xs leading-relaxed text-gray-500">As opções de pagamento estão sendo configuradas e ainda não podem ser selecionadas.</p>
-            </section>
+              <div className="text-right">
+                <p className="text-sm font-bold tabular-nums">R$ {brl(subtotal)}</p>
+                <p className="mt-1 text-[11px] text-gray-400 line-through">R$ {brl(originalTotal)}</p>
+              </div>
+            </div>
+            <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-dashed border-gray-200 pt-3 text-[11px]">
+              <span className="rounded-sm bg-[#fff0f2] px-2 py-1 font-semibold text-[#fe2c55]">Oferta especial</span>
+              <span className="font-medium text-[#15966b]">Você economiza R$ {brl(originalTotal - subtotal)}</span>
+            </div>
+          </section>
 
-            <section className="rounded-xl bg-white p-4 shadow-sm sm:p-5">
-              <div className="mb-4 flex items-center gap-2"><PackageCheck className="size-5 text-[#fe2c55]" /><h2 className="text-base font-bold sm:text-lg">Resumo do pedido</h2></div>
-              <div className="mb-4 flex min-w-0 gap-3">
-                <img src={current.img} alt="Escova Elétrica 9 em 1" className="size-16 shrink-0 rounded-lg bg-gray-100 object-cover" />
-                <div className="min-w-0 flex-1"><p className="line-clamp-2 text-sm font-semibold">Escova Elétrica 9 em 1 – Limpeza Fácil e Rápida</p><p className="mt-1 text-xs text-gray-500">{current.label} · Qtd: {qty}</p><p className="mt-1 text-sm font-bold">R$ {brl(subtotal)}</p></div>
-              </div>
-              <div className="space-y-3 border-t pt-4 text-sm">
-                <div className="flex items-start justify-between gap-3"><span className="text-gray-600">Subtotal do produto</span><span className="shrink-0 font-medium tabular-nums">R$ {brl(subtotal)}</span></div>
-                <div className="flex items-start justify-between gap-3"><span className="text-gray-600">Preço original</span><span className="shrink-0 text-gray-500 line-through tabular-nums">R$ {brl(originalTotal)}</span></div>
-                <div className="flex items-start justify-between gap-3"><span className="text-gray-600">Desconto no produto</span><span className="shrink-0 font-medium text-[#fe2c55] tabular-nums">- R$ {brl(originalTotal - subtotal)}</span></div>
-                <div className="flex items-center justify-between gap-3 border-t pt-3"><span className="text-gray-600">Frete {shipping === "free" ? "econômico" : "SEDEX"}</span><span className="font-medium">{shipping === "free" ? "Grátis" : "A calcular"}</span></div>
-                <div className="flex items-center justify-between border-t pt-4 text-base font-bold"><span>Total {shipping === "sedex" ? "parcial" : ""}</span><span className="tabular-nums">{shipping === "free" ? `R$ ${brl(subtotal)}` : `R$ ${brl(subtotal)} + SEDEX`}</span></div>
-              </div>
-              {notice && <p role="alert" className="mt-4 rounded-lg bg-amber-50 p-3 text-xs leading-relaxed text-amber-800">{notice}</p>}
-              <button type="button" onClick={() => setNotice(!addressComplete ? "Preencha todos os campos obrigatórios do endereço para continuar." : shipping === "sedex" ? "Seu endereço está preenchido, mas o SEDEX só poderá ser confirmado após a integração da cotação oficial dos Correios. Nenhum valor será cobrado ou estimado." : "Seu endereço está preenchido. As opções PIX, crédito e débito ainda estão indisponíveis; por isso, o pedido não será enviado nem haverá cobrança.")} className="mt-5 flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-[#fe2c55] px-5 py-3 text-sm font-bold text-white shadow-sm transition-colors hover:bg-[#e9274d] active:scale-[0.99]">
-                Revisar pedido <ChevronLeft className="size-4 rotate-180" />
-              </button>
-              <p className="mt-3 text-center text-[11px] leading-relaxed text-gray-500">Ao continuar, você concorda com os termos de uso e a política de privacidade.</p>
-            </section>
-            <section className="rounded-xl border border-[#15966b]/15 bg-white p-4 shadow-sm sm:p-5">
+          <section className="rounded-xl bg-white p-4 shadow-[0_1px_3px_rgba(0,0,0,0.04)] sm:p-5">
+            <div className="mb-4 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <ShieldCheck className="size-5 text-[#15966b]" />
-                <h2 className="text-sm font-bold sm:text-base">Compra protegida</h2>
+                <MapPin className="size-[18px] text-[#fe2c55]" />
+                <h1 className="text-sm font-bold">Endereço de entrega</h1>
               </div>
-              <p className="mt-2 text-xs leading-relaxed text-gray-500">Seus dados de entrega são usados para processar o envio do pedido.</p>
-            </section>
+              <span className="text-[10px] font-medium text-gray-400">Obrigatório *</span>
+            </div>
+            <div className="grid grid-cols-1 gap-x-3 gap-y-3 sm:grid-cols-2">
+              {addressFields.map((field) => (
+                <label key={field.key} className={field.wide ? "sm:col-span-2" : ""}>
+                  <span className="mb-1.5 block text-[11px] font-semibold text-gray-600">{field.label}{field.required && <span className="text-[#fe2c55]"> *</span>}</span>
+                  <input
+                    type={field.type ?? "text"}
+                    value={address[field.key]}
+                    onChange={(event) => updateAddress(field.key, event.target.value)}
+                    onBlur={field.key === "cep" ? () => void lookupCep() : undefined}
+                    placeholder={field.placeholder}
+                    autoComplete={field.key === "name" ? "name" : field.key === "phone" ? "tel" : field.key === "cep" ? "postal-code" : field.key === "street" ? "street-address" : "off"}
+                    required={field.required}
+                    maxLength={field.key === "state" ? 2 : field.key === "cep" ? 9 : undefined}
+                    className="min-h-11 w-full rounded-lg border border-[#e5e5e5] bg-white px-3 py-2.5 text-[13px] outline-none transition focus:border-[#fe2c55] focus:ring-2 focus:ring-[#fe2c55]/10"
+                  />
+                </label>
+              ))}
+            </div>
+            <div className="mt-3 flex min-h-5 items-center gap-2 text-[11px]" aria-live="polite">
+              {cepStatus === "loading" && <><Loader2 className="size-3.5 animate-spin text-gray-500" /><span className="text-gray-500">Buscando endereço...</span></>}
+              {cepStatus === "success" && <><CheckCircle2 className="size-3.5 text-[#15966b]" /><span className="text-[#15966b]">CEP localizado. Confira os dados preenchidos.</span></>}
+              {cepStatus === "error" && <><AlertCircle className="size-3.5 text-amber-600" /><span className="text-amber-700">CEP não localizado. Você pode preencher o endereço manualmente.</span></>}
+              {cepStatus === "idle" && <span className="text-gray-400">Informe o CEP para localizar rua, bairro e cidade automaticamente.</span>}
+            </div>
+          </section>
+
+          <section className="rounded-xl bg-white p-4 shadow-[0_1px_3px_rgba(0,0,0,0.04)] sm:p-5">
+            <div className="mb-3 flex items-center gap-2">
+              <Truck className="size-[18px] text-[#fe2c55]" />
+              <h2 className="text-sm font-bold">Opção de entrega</h2>
+            </div>
+            <label className="flex cursor-pointer items-center gap-3 rounded-lg border border-[#15966b] bg-[#15966b]/[0.045] p-3.5">
+              <input type="radio" name="shipping" checked={shipping === "free"} onChange={() => setShipping("free")} className="size-4 accent-[#15966b]" />
+              <span className="min-w-0 flex-1">
+                <span className="block text-[13px] font-bold">Entrega padrão</span>
+                <span className="mt-0.5 block text-[11px] text-gray-500">Frete grátis para este pedido</span>
+              </span>
+              <span className="text-xs font-bold text-[#15966b]">GRÁTIS</span>
+            </label>
+            <div className="mt-2 flex items-center gap-3 rounded-lg border border-gray-200 p-3.5 opacity-60">
+              <span className="grid size-4 place-items-center rounded-full border border-gray-300" />
+              <span className="min-w-0 flex-1">
+                <span className="block text-[13px] font-semibold">Entrega expressa</span>
+                <span className="mt-0.5 block text-[11px] text-gray-500">Consulte disponibilidade para seu CEP</span>
+              </span>
+              <span className="text-[11px] font-semibold text-gray-400">Indisponível</span>
+            </div>
+          </section>
+
+          <section className="rounded-xl bg-white p-4 shadow-[0_1px_3px_rgba(0,0,0,0.04)] sm:p-5">
+            <div className="mb-3 flex items-center gap-2">
+              <Wallet className="size-[18px] text-[#fe2c55]" />
+              <h2 className="text-sm font-bold">Forma de pagamento</h2>
+            </div>
+            <div className="space-y-2">
+              <button type="button" onClick={() => setPaymentMethod("pix")} className={`flex w-full items-center gap-3 rounded-lg border p-3.5 text-left transition ${paymentMethod === "pix" ? "border-[#fe2c55] bg-[#fff8f9]" : "border-gray-200"}`}>
+                <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-[#e9f8f1] text-[13px] font-black text-[#15966b]">PIX</span>
+                <span className="min-w-0 flex-1">
+                  <span className="block text-[13px] font-bold">Pix</span>
+                  <span className="block text-[11px] text-gray-500">Pagamento instantâneo</span>
+                </span>
+                <span className={`grid size-[18px] place-items-center rounded-full border ${paymentMethod === "pix" ? "border-[#fe2c55]" : "border-gray-300"}`}>{paymentMethod === "pix" && <span className="size-2.5 rounded-full bg-[#fe2c55]" />}</span>
+              </button>
+              <button type="button" onClick={() => setPaymentMethod("card")} className={`flex w-full items-center gap-3 rounded-lg border p-3.5 text-left transition ${paymentMethod === "card" ? "border-[#fe2c55] bg-[#fff8f9]" : "border-gray-200"}`}>
+                <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-gray-100"><CreditCard className="size-5 text-gray-600" /></span>
+                <span className="min-w-0 flex-1">
+                  <span className="block text-[13px] font-bold">Cartão de crédito</span>
+                  <span className="block text-[11px] text-gray-500">Consulte as condições na próxima etapa</span>
+                </span>
+                <span className={`grid size-[18px] place-items-center rounded-full border ${paymentMethod === "card" ? "border-[#fe2c55]" : "border-gray-300"}`}>{paymentMethod === "card" && <span className="size-2.5 rounded-full bg-[#fe2c55]" />}</span>
+              </button>
+            </div>
+            <p className="mt-3 rounded-lg bg-amber-50 px-3 py-2.5 text-[11px] leading-relaxed text-amber-800">
+              A interface de pagamento está preparada visualmente, mas a geração de cobranças ainda depende da conexão com um gateway. Nenhum pagamento será processado nesta etapa.
+            </p>
+          </section>
+
+          <section className="rounded-xl bg-white p-4 shadow-[0_1px_3px_rgba(0,0,0,0.04)] sm:p-5">
+            <div className="mb-3 flex items-center gap-2">
+              <PackageCheck className="size-[18px] text-[#fe2c55]" />
+              <h2 className="text-sm font-bold">Resumo do pedido</h2>
+            </div>
+            <div className="space-y-2.5 text-[12px]">
+              <div className="flex justify-between gap-3"><span className="text-gray-500">Subtotal ({qty} {qty === 1 ? "item" : "itens"})</span><span className="font-medium tabular-nums">R$ {brl(subtotal)}</span></div>
+              <div className="flex justify-between gap-3"><span className="text-gray-500">Desconto</span><span className="font-semibold text-[#15966b] tabular-nums">− R$ {brl(originalTotal - subtotal)}</span></div>
+              <div className="flex justify-between gap-3"><span className="text-gray-500">Frete</span><span className="font-semibold text-[#15966b]">Grátis</span></div>
+              <div className="flex items-center justify-between border-t border-dashed border-gray-200 pt-3 text-[15px] font-bold"><span>Total do pedido</span><span className="tabular-nums">R$ {brl(subtotal)}</span></div>
+            </div>
+            {notice && <p role="alert" className="mt-3 rounded-lg bg-amber-50 p-3 text-[11px] leading-relaxed text-amber-800">{notice}</p>}
+          </section>
+
+          <div className="flex items-center justify-center gap-1.5 pb-2 text-[10px] text-gray-400">
+            <ShieldCheck className="size-3.5" /> Confira seus dados antes de continuar
+          </div>
+        </div>
+
+        <div className="fixed inset-x-0 bottom-0 z-30 border-t border-gray-100 bg-white/95 px-3 pb-[max(12px,env(safe-area-inset-bottom))] pt-3 backdrop-blur">
+          <div className="mx-auto flex max-w-2xl items-center gap-3">
+            <div className="min-w-0 flex-1">
+              <p className="text-[10px] text-gray-500">Total a pagar</p>
+              <p className="text-lg font-extrabold leading-tight tabular-nums">R$ {brl(subtotal)}</p>
+            </div>
+            <button type="button" onClick={() => setNotice(!addressComplete ? "Preencha todos os campos obrigatórios do endereço para continuar." : "O checkout visual está pronto, mas ainda falta conectar o gateway de pagamento para gerar o Pix ou processar o cartão. Nenhuma cobrança foi criada.")} className="flex min-h-12 min-w-[180px] items-center justify-center rounded-full bg-[#fe2c55] px-6 text-[13px] font-bold text-white shadow-sm transition hover:bg-[#e9274d] active:scale-[0.99]">
+              Continuar
+            </button>
+          </div>
+        </div>
+      </main>
+    );
+  }n>
           </div>
 
           </div>
