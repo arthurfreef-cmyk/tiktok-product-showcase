@@ -60,18 +60,18 @@ function Index() {
   const updateAddress = (key: keyof Address, rawValue: string) => {
     let value = rawValue;
     if (key === "cep") {
-      const digits = rawValue.replace(/\\D/g, "").slice(0, 8);
+      const digits = rawValue.replace(/\D/g, "").slice(0, 8);
       value = digits.length > 5 ? `${digits.slice(0, 5)}-${digits.slice(5)}` : digits;
       setCepStatus("idle");
     }
     if (key === "phone") {
-      const digits = rawValue.replace(/\\D/g, "").slice(0, 11);
+      const digits = rawValue.replace(/\D/g, "").slice(0, 11);
       value = digits.length > 10
-        ? digits.replace(/^(\\d{2})(\\d{5})(\\d{4})$/, "($1) $2-$3")
+        ? digits.replace(/^(\d{2})(\d{5})(\d{4})$/, "($1) $2-$3")
         : digits.length > 6
-          ? digits.replace(/^(\\d{2})(\\d{4})(\\d{0,4})$/, "($1) $2-$3")
+          ? digits.replace(/^(\d{2})(\d{4})(\d{0,4})$/, "($1) $2-$3")
           : digits.length > 2
-            ? digits.replace(/^(\\d{2})(\\d+)/, "($1) $2")
+            ? digits.replace(/^(\d{2})(\d+)/, "($1) $2")
             : digits;
     }
     if (key === "state") value = rawValue.toUpperCase().replace(/[^A-Z]/g, "").slice(0, 2);
@@ -80,7 +80,7 @@ function Index() {
   };
 
   const lookupCep = async () => {
-    const cep = address.cep.replace(/\\D/g, "");
+    const cep = address.cep.replace(/\D/g, "");
     if (cep.length !== 8) {
       setCepStatus("error");
       return;
