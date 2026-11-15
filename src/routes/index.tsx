@@ -105,8 +105,18 @@ function Index() {
       setCepStatus("error");
     }
   };
-  const addressComplete = address.name.trim() && address.phone.trim() && address.cep.trim() &&
-    address.street.trim() && address.number.trim() && addr  if (showCheckout) {
+  const addressComplete = Boolean(
+    address.name.trim() &&
+    address.phone.replace(/\D/g, "").length >= 10 &&
+    address.cep.replace(/\D/g, "").length === 8 &&
+    address.street.trim() &&
+    address.number.trim() &&
+    address.neighborhood.trim() &&
+    address.city.trim() &&
+    address.state.trim().length === 2
+  );
+
+  if (showCheckout) {
     return (
       <main className="min-h-screen bg-[#f5f5f6] pb-32 text-[#161823]">
         <header className="sticky top-0 z-30 border-b border-gray-100 bg-white">
@@ -268,13 +278,6 @@ function Index() {
             <button type="button" onClick={() => setNotice(!addressComplete ? "Preencha todos os campos obrigatórios do endereço para continuar." : "O checkout visual está pronto, mas ainda falta conectar o gateway de pagamento para gerar o Pix ou processar o cartão. Nenhuma cobrança foi criada.")} className="flex min-h-12 min-w-[180px] items-center justify-center rounded-full bg-[#fe2c55] px-6 text-[13px] font-bold text-white shadow-sm transition hover:bg-[#e9274d] active:scale-[0.99]">
               Continuar
             </button>
-          </div>
-        </div>
-      </main>
-    );
-  }n>
-          </div>
-
           </div>
         </div>
       </main>
