@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import {
   ChevronLeft, MoreHorizontal, Share2, ShoppingCart, MapPin, PackageCheck,
@@ -40,7 +40,7 @@ function Index() {
   const [qty, setQty] = useState(1);
   const [showCheckout, setShowCheckout] = useState(false);
   const [address, setAddress] = useState<Address>(emptyAddress);
-  const [shipping, setShipping] = useState<"free" | "sedex">("free");
+  const [shipping, setShipping] = useState<"jadlog" | "sedex">("jadlog");
   const [paymentMethod, setPaymentMethod] = useState<"pix" | "card">("pix");
   const [notice, setNotice] = useState("");
   const [cepStatus, setCepStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
@@ -48,15 +48,11 @@ function Index() {
   const subtotal = current.price * qty;
   const originalTotal = current.old * qty;
   const addressFields: { key: keyof Address; label: string; placeholder: string; required?: boolean; wide?: boolean; type?: string }[] = [
-    { key: "name", label: "Nome completo", placeholder: "Como devemos chamar você?", required: true, wide: true },
+    { key: "name", label: "Nome completo", placeholder: "Seu nome completo", required: true, wide: true },
     { key: "phone", label: "Celular", placeholder: "(00) 00000-0000", required: true, type: "tel" },
     { key: "cep", label: "CEP", placeholder: "00000-000", required: true },
-    { key: "street", label: "Rua / Avenida", placeholder: "Nome da rua", required: true, wide: true },
     { key: "number", label: "Número", placeholder: "Nº", required: true },
-    { key: "complement", label: "Complemento", placeholder: "Apto, bloco (opcional)" },
-    { key: "neighborhood", label: "Bairro", placeholder: "Seu bairro", required: true },
-    { key: "city", label: "Cidade", placeholder: "Sua cidade", required: true },
-    { key: "state", label: "Estado (UF)", placeholder: "UF", required: true },
+    { key: "complement", label: "Complemento (opcional)", placeholder: "Apto, bloco, referência", wide: true },
   ];
   const updateAddress = (key: keyof Address, rawValue: string) => {
     let value = rawValue;
@@ -80,31 +76,39 @@ function Index() {
     setNotice("");
   };
 
-  const lookupCep = async () => {
-    const cep = address.cep.replace(/\D/g, "");
+  useEffect(() => {
+    const cep = address.cep.replace(/\\D/g, "");
     if (cep.length !== 8) {
-      setCepStatus("error");
+      setCepStatus("idle");
       return;
     }
+    let cancelled = false;
     setCepStatus("loading");
-    try {
-      const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
-      if (!response.ok) throw new Error("Falha ao consultar CEP");
-      const data = await response.json();
-      if (data.erro) throw new Error("CEP não encontrado");
-      setAddress((previous) => ({
-        ...previous,
-        street: data.logradouro || previous.street,
-        neighborhood: data.bairro || previous.neighborhood,
-        city: data.localidade || previous.city,
-        state: data.uf || previous.state,
-      }));
-      setCepStatus("success");
-      setNotice("");
-    } catch {
-      setCepStatus("error");
-    }
-  };
+    const timer = window.setTimeout(async () => {
+      try {
+        const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+        if (!response.ok) throw new Error("Falha ao consultar CEP");
+        const data = await response.json();
+        if (data.erro) throw new Error("CEP não encontrado");
+        if (cancelled) return;
+        setAddress((previous) => ({
+          ...previous,
+          street: data.logradouro || previous.street,
+          neighborhood: data.bairro || previous.neighborhood,
+          city: data.localidade || previous.city,
+          state: data.uf || previous.state,
+        }));
+        setCepStatus("success");
+      } catch {
+        if (!cancelled) setCepStatus("error");
+      }
+    }, 250);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
+  }, [address.cep]);
+
   const addressComplete = Boolean(
     address.name.trim() &&
     address.phone.replace(/\D/g, "").length >= 10 &&
@@ -181,7 +185,7 @@ function Index() {
                     type={field.type ?? "text"}
                     value={address[field.key]}
                     onChange={(event) => updateAddress(field.key, event.target.value)}
-                    onBlur={field.key === "cep" ? () => void lookupCep() : undefined}
+                    
                     placeholder={field.placeholder}
                     autoComplete={field.key === "name" ? "name" : field.key === "phone" ? "tel" : field.key === "cep" ? "postal-code" : field.key === "street" ? "street-address" : "off"}
                     required={field.required}
@@ -195,33 +199,37 @@ function Index() {
               {cepStatus === "loading" && <><Loader2 className="size-3.5 animate-spin text-gray-500" /><span className="text-gray-500">Buscando endereço...</span></>}
               {cepStatus === "success" && <><CheckCircle2 className="size-3.5 text-[#15966b]" /><span className="text-[#15966b]">CEP localizado. Confira os dados preenchidos.</span></>}
               {cepStatus === "error" && <><AlertCircle className="size-3.5 text-amber-600" /><span className="text-amber-700">CEP não localizado. Você pode preencher o endereço manualmente.</span></>}
-              {cepStatus === "idle" && <span className="text-gray-400">Informe o CEP para localizar rua, bairro e cidade automaticamente.</span>}
+              {cepStatus === "idle" && <span className="text-gray-400">Digite o CEP; o endereço e as opções de frete aparecem automaticamente.</span>}
             </div>
           </section>
 
-          <section className="rounded-xl bg-white p-4 shadow-[0_1px_3px_rgba(0,0,0,0.04)] sm:p-5">
-            <div className="mb-3 flex items-center gap-2">
-              <Truck className="size-[18px] text-[#fe2c55]" />
-              <h2 className="text-sm font-bold">Opção de entrega</h2>
-            </div>
-            <label className="flex cursor-pointer items-center gap-3 rounded-lg border border-[#15966b] bg-[#15966b]/[0.045] p-3.5">
-              <input type="radio" name="shipping" checked={shipping === "free"} onChange={() => setShipping("free")} className="size-4 accent-[#15966b]" />
-              <span className="min-w-0 flex-1">
-                <span className="block text-[13px] font-bold">Entrega padrão</span>
-                <span className="mt-0.5 block text-[11px] text-gray-500">Frete grátis para este pedido</span>
-              </span>
-              <span className="text-xs font-bold text-[#15966b]">GRÁTIS</span>
-            </label>
-            <div className="mt-2 flex items-center gap-3 rounded-lg border border-gray-200 p-3.5 opacity-60">
-              <span className="grid size-4 place-items-center rounded-full border border-gray-300" />
-              <span className="min-w-0 flex-1">
-                <span className="block text-[13px] font-semibold">Entrega expressa</span>
-                <span className="mt-0.5 block text-[11px] text-gray-500">Consulte disponibilidade para seu CEP</span>
-              </span>
-              <span className="text-[11px] font-semibold text-gray-400">Indisponível</span>
-            </div>
-          </section>
-
+          {cepStatus === "success" && (
+            <section className="rounded-xl bg-white p-4 shadow-[0_1px_3px_rgba(0,0,0,0.04)] sm:p-5">
+              <div className="mb-3 flex items-center gap-2">
+                <Truck className="size-[18px] text-[#fe2c55]" />
+                <h2 className="text-sm font-bold">Escolha seu frete</h2>
+              </div>
+              <div className="space-y-2">
+                <label className={`flex cursor-pointer items-center gap-3 rounded-lg border p-3.5 transition ${shipping === "sedex" ? "border-[#fe2c55] bg-[#fff8f9]" : "border-gray-200"}`}>
+                  <input type="radio" name="shipping" checked={shipping === "sedex"} onChange={() => setShipping("sedex")} className="size-4 accent-[#fe2c55]" />
+                  <span className="grid h-9 min-w-[76px] place-items-center rounded-md bg-[#fff0f2] px-2 text-[12px] font-black italic tracking-tight text-[#d71920]">SEDEX</span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-[13px] font-bold">Frete expresso SEDEX</span>
+                    <span className="mt-0.5 block text-[11px] text-gray-500">Entrega expressa • valor a confirmar</span>
+                  </span>
+                </label>
+                <label className={`flex cursor-pointer items-center gap-3 rounded-lg border p-3.5 transition ${shipping === "jadlog" ? "border-[#15966b] bg-[#15966b]/[0.045]" : "border-gray-200"}`}>
+                  <input type="radio" name="shipping" checked={shipping === "jadlog"} onChange={() => setShipping("jadlog")} className="size-4 accent-[#15966b]" />
+                  <span className="grid h-9 min-w-[76px] place-items-center rounded-md bg-[#fff3e8] px-2 text-[12px] font-black italic tracking-tight text-[#e87522]">JADLOG</span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-[13px] font-bold">Frete grátis Jadlog</span>
+                    <span className="mt-0.5 block text-[11px] text-gray-500">Entrega padrão sem custo</span>
+                  </span>
+                  <span className="text-xs font-bold text-[#15966b]">GRÁTIS</span>
+                </label>
+              </div>
+            </section>
+          )}
           <section className="rounded-xl bg-white p-4 shadow-[0_1px_3px_rgba(0,0,0,0.04)] sm:p-5">
             <div className="mb-3 flex items-center gap-2">
               <Wallet className="size-[18px] text-[#fe2c55]" />
@@ -236,13 +244,13 @@ function Index() {
                 </span>
                 <span className={`grid size-[18px] place-items-center rounded-full border ${paymentMethod === "pix" ? "border-[#fe2c55]" : "border-gray-300"}`}>{paymentMethod === "pix" && <span className="size-2.5 rounded-full bg-[#fe2c55]" />}</span>
               </button>
-              <button type="button" onClick={() => setPaymentMethod("card")} className={`flex w-full items-center gap-3 rounded-lg border p-3.5 text-left transition ${paymentMethod === "card" ? "border-[#fe2c55] bg-[#fff8f9]" : "border-gray-200"}`}>
+              <button type="button" onClick={() => setPaymentMethod("card")} disabled className={`flex w-full opacity-60 items-center gap-3 rounded-lg border p-3.5 text-left transition ${paymentMethod === "card" ? "border-[#fe2c55] bg-[#fff8f9]" : "border-gray-200"}`}>
                 <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-gray-100"><CreditCard className="size-5 text-gray-600" /></span>
                 <span className="min-w-0 flex-1">
                   <span className="block text-[13px] font-bold">Cartão de crédito</span>
-                  <span className="block text-[11px] text-gray-500">Consulte as condições na próxima etapa</span>
+                  <span className="block text-[11px] text-gray-500">Indisponível no momento</span>
                 </span>
-                <span className={`grid size-[18px] place-items-center rounded-full border ${paymentMethod === "card" ? "border-[#fe2c55]" : "border-gray-300"}`}>{paymentMethod === "card" && <span className="size-2.5 rounded-full bg-[#fe2c55]" />}</span>
+                <span className="text-[10px] font-semibold text-gray-400">Indisponível</span>
               </button>
             </div>
             <p className="mt-3 rounded-lg bg-amber-50 px-3 py-2.5 text-[11px] leading-relaxed text-amber-800">
@@ -258,7 +266,7 @@ function Index() {
             <div className="space-y-2.5 text-[12px]">
               <div className="flex justify-between gap-3"><span className="text-gray-500">Subtotal ({qty} {qty === 1 ? "item" : "itens"})</span><span className="font-medium tabular-nums">R$ {brl(subtotal)}</span></div>
               <div className="flex justify-between gap-3"><span className="text-gray-500">Desconto</span><span className="font-semibold text-[#15966b] tabular-nums">− R$ {brl(originalTotal - subtotal)}</span></div>
-              <div className="flex justify-between gap-3"><span className="text-gray-500">Frete</span><span className="font-semibold text-[#15966b]">Grátis</span></div>
+              <div className="flex justify-between gap-3"><span className="text-gray-500">Frete</span><span className={shipping === "jadlog" ? "font-semibold text-[#15966b]" : "font-semibold text-gray-600"}>{shipping === "jadlog" ? "Grátis (Jadlog)" : "SEDEX — valor a confirmar"}</span></div>
               <div className="flex items-center justify-between border-t border-dashed border-gray-200 pt-3 text-[15px] font-bold"><span>Total do pedido</span><span className="tabular-nums">R$ {brl(subtotal)}</span></div>
             </div>
             {notice && <p role="alert" className="mt-3 rounded-lg bg-amber-50 p-3 text-[11px] leading-relaxed text-amber-800">{notice}</p>}
@@ -275,7 +283,7 @@ function Index() {
               <p className="text-[10px] text-gray-500">Total a pagar</p>
               <p className="text-lg font-extrabold leading-tight tabular-nums">R$ {brl(subtotal)}</p>
             </div>
-            <button type="button" onClick={() => setNotice(!addressComplete ? "Preencha todos os campos obrigatórios do endereço para continuar." : "O checkout visual está pronto, mas ainda falta conectar o gateway de pagamento para gerar o Pix ou processar o cartão. Nenhuma cobrança foi criada.")} className="flex min-h-12 min-w-[180px] items-center justify-center rounded-full bg-[#fe2c55] px-6 text-[13px] font-bold text-white shadow-sm transition hover:bg-[#e9274d] active:scale-[0.99]">
+            <button type="button" onClick={() => setNotice(!addressComplete ? "Preencha nome, celular, CEP e número para continuar." : "O checkout visual está pronto, mas ainda falta conectar o gateway de pagamento para gerar o Pix ou processar o cartão. Nenhuma cobrança foi criada.")} className="flex min-h-12 min-w-[180px] items-center justify-center rounded-full bg-[#fe2c55] px-6 text-[13px] font-bold text-white shadow-sm transition hover:bg-[#e9274d] active:scale-[0.99]">
               Continuar
             </button>
           </div>
