@@ -63,9 +63,9 @@ return (
       <main className="min-h-screen bg-[#f5f5f6] pb-32 text-[#161823]">
         <header className="sticky top-0 z-30 border-b border-gray-100 bg-white">
           <div className="mx-auto flex h-14 max-w-2xl items-center gap-3 px-3 sm:h-16 sm:px-5">
-            <button onClick={() => setShowCheckout(false)} aria-label="Voltar para o produto" className="grid size-9 shrink-0 place-items-center rounded-full hover:bg-gray-100">
+            <a href="/" aria-label="Voltar para o produto" className="grid size-9 shrink-0 place-items-center rounded-full hover:bg-gray-100">
               <ChevronLeft className="size-6" />
-            </button>
+            </a>
             <div className="min-w-0 flex-1">
               <p className="text-[15px] font-bold">Finalizar compra</p>
               <p className="text-[11px] text-gray-500">Revise os dados do seu pedido</p>
