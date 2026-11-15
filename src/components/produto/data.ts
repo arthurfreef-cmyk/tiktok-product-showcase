@@ -1,9 +1,8 @@
 import main from "@/assets/produto/main.jpg.asset.json";
-import t1 from "@/assets/produto/t1.jpg.asset.json";
-import t2 from "@/assets/produto/t2.jpg.asset.json";
-import t3 from "@/assets/produto/t3.jpg.asset.json";
-import t4 from "@/assets/produto/t4.jpg.asset.json";
-import t5 from "@/assets/produto/t5.jpg.asset.json";
+import usb from "@/assets/produto/usb.webp.asset.json";
+import cantos from "@/assets/produto/cantos.webp.asset.json";
+import haste from "@/assets/produto/haste.webp.asset.json";
+import limpeza from "@/assets/produto/limpeza.webp.asset.json";
 import spec1 from "@/assets/produto/spec1.jpg.asset.json";
 import spec2 from "@/assets/produto/spec2.jpg.asset.json";
 import r1 from "@/assets/produto/r1.jpg.asset.json";
@@ -17,7 +16,7 @@ import p3 from "@/assets/produto/p3.jpg.asset.json";
 import p4 from "@/assets/produto/p4.jpg.asset.json";
 import p5 from "@/assets/produto/p5.jpg.asset.json";
 
-export const gallery: string[] = [t1.url, t2.url, t3.url, t4.url, t5.url, main.url];
+export const gallery: string[] = [main.url, usb.url, cantos.url, haste.url, limpeza.url];
 export const specs = [
   { id: "1", label: "1 peça", img: spec1.url },
   { id: "2", label: "2 peça", img: spec2.url },

@@ -4,7 +4,7 @@ import { gallery } from "./data";
 import { Countdown } from "./Countdown";
 
 export function Gallery() {
-  const [active, setActive] = useState(gallery.length - 1);
+  const [active, setActive] = useState(0);
   return (
     <section>
       <div className="aspect-square w-full overflow-hidden bg-muted">
